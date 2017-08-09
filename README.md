@@ -1,0 +1,2 @@
+# Localizer
+Personalized localization script
