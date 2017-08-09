@@ -1,0 +1,34 @@
+{
+    "name": "weiss-aug-localizer",
+    "version": "1.0.0",
+    "description": "Front-end portal to manage localization for Weiss-Aug's websites",
+    "main": "index.js",
+    "scripts": {
+        "babel": "babel src/app.js --out-file public/app.js",
+        "build": "webpack",
+        "dev": "babel src/script.js --out-file public/app.js",
+        "test": "echo \"test\""
+    },
+    "keywords": [
+        "node",
+        "i18next",
+        "weiss-aug"
+    ],
+    "author": "Peter Abbondanzo",
+    "license": "MIT",
+    "dependencies": {
+        "axios": "^0.16.2",
+        "htmlparser2": "^3.9.2"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.24.1",
+        "babel-core": "^6.25.0",
+        "babel-loader": "^7.1.1",
+        "babel-plugin-transform-runtime": "^6.23.0",
+        "babel-preset-env": "^1.6.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babili": "^0.1.4",
+        "uglifyjs-webpack-plugin": "^0.4.6",
+        "webpack": "^3.5.2"
+    }
+}
