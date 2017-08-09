@@ -1,21 +1,23 @@
 'use strict';
 
+import axios from 'axios';
 import htmlparser from 'htmlparser2';
 
 export default class LanguageParser {
     /**
      * Called upon the creation of a new Parser
      * @constructor
-     * @param {String} html 
+     * @param {HTMLElement} html 
      */
     constructor(html) {
-        this.html = html;
+        this.html = html.innerHTML;
+        this.body = html;
     }
 
     /**
      * Inserts given String into a sorted array
      * @param {String} string 
-     * @param {Object[]} array Assumes this array is sorted
+     * @param {Array} array Assumes this array is sorted
      */
     addString(string, array) {
         if (array.length === 0) {
@@ -54,7 +56,18 @@ export default class LanguageParser {
         parser.write(html);
         parser.end();
 
-        console.log(strings);
+        // Display JSON in browser
+        let url = window.location.href
+        if (url.indexOf('?format=strings') !== -1) {
+            let body = this.body;
+            let jsonObject = {}
+            strings.forEach(function(string) {
+                jsonObject[string] = string;
+            })
+            this.body.innerHTML = '<pre>' + JSON.stringify(jsonObject, null, '\t') + '</pre>';
+            console.info('Found ' + strings.length + ' strings:', strings);
+        }
+
         return strings;
     }
 
@@ -82,7 +95,6 @@ export default class LanguageParser {
                 let text = current.data.replace(/(\r\n|\n|\r)/gm, '').trim();
                 let trimmed = text.replace(/&nbsp;/gi, ''); // Removing non-string queries
                 if (text && trimmed) {
-                    console.log(current);
                     strings = this.addString(text, strings);
                 }
             }
@@ -93,6 +105,25 @@ export default class LanguageParser {
 
     replaceStrings(json) {
 
+    }
+
+    getTranslation(language) {
+        let location = '/translate/' + language + '.json';
+        axios({
+                method: 'get',
+                url: location,
+                responseType: 'json',
+                validateStatus: function(status) {
+                    return status >= 200 && status < 300;
+                }
+            })
+            .then(function(response) {
+                console.log(response.data);
+                return response.data;
+            })
+            .catch(function(error) {
+                console.warn(error);
+            });
     }
 }
 

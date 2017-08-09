@@ -2,7 +2,15 @@
 
 import Cookies from 'js-cookie';
 
+/**
+ * Class for storing/maintaining locale cookies
+ */
 export default class CookieStorage {
+    /**
+     * @constructor
+     * @param {String} url 
+     * @param {String} browserLanguage 
+     */
     constructor(url, browserLanguage) {
         this.url = url;
         this.browserLanguage = browserLanguage;
@@ -52,6 +60,9 @@ export default class CookieStorage {
      * Remove the existing language cookie
      */
     deleteCookie() {
-        Cookies.remove('locale');
+        let cookie = Cookies.get('locale');
+        if (cookie) {
+            Cookies.remove('locale');
+        }
     }
 }
