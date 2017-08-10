@@ -10,12 +10,14 @@ export default class Model {
      * @param {Array} languages 
      * @param {Object} translation 
      * @param {String} _translationUrl
+     * @param {String} defaultLanguage Is the current language the default language
      */
-    constructor(currentLanguage, languages, translation, _translationUrl) {
+    constructor(currentLanguage, languages, translation, _translationUrl, defaultLanguage) {
         this.currentLanguage = currentLanguage;
         this.languages = languages;
         this.translation = translation;
         this._translationUrl = _translationUrl;
+        this.defaultLanguage = defaultLanguage;
 
         if (arguments.length > 0) {
             this.init();
@@ -40,8 +42,19 @@ export default class Model {
     /** 
      * Get translation of website
      */
-    getTranslation() {
-        return this.translation;
+    async getTranslation() {
+        if (!this.translation) {
+            return this._setTranslation();
+        } else {
+            return this.translation;
+        }
+    }
+
+    /**
+     * Returns true if the current language is the default language
+     */
+    isDefault() {
+        return this.currentLanguage === this.defaultLanguage;
     }
 
     /**
@@ -53,10 +66,32 @@ export default class Model {
             let cookie = new CookieStorage();
             cookie.setCookie(language);
             this.currentLanguage = language;
+            this._setTranslation();
         }
     }
 
-    _setTranslation() {
-        let url = this._translationUrl;
+    /**
+     * Asynchronous request to get translation data
+     */
+    async _setTranslation() {
+        let language = this.currentLanguage;
+        let url = this._translationUrl + language + '.json';
+        let translation = this.translation;
+        let request = axios({
+                method: 'get',
+                url: url,
+                responseType: 'json'
+            })
+            .then(function(response) {
+                console.info('Loaded translation successfully');
+                if (response.data) {
+                    translation = response.data;
+                }
+                return response.data;
+            })
+            .catch(function(error) {
+                throw new Error('Problem finding translation: ', error.message);
+            });
+        return request;
     }
 }

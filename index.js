@@ -22,7 +22,9 @@ export default class LanguageParser {
 
     init() {
         let language = this.userLanguage ? this.userLanguage : this.defaultLanguage;
-        let model = new Model(language, this.languages, null, null);
+        let translationUrl = window.location.origin + '/translation/';
+        let isDefault = language === this.defaultLanguage;
+        let model = new Model(language, this.languages, null, translationUrl, this.defaultLanguage);
         let view = new View(model, this.html);
         let controller = new Controller(model, view);
     }

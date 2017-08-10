@@ -1,6 +1,7 @@
 'use strict';
 
 import htmlparser from 'htmlparser2';
+import domparser from './domparser';
 
 export default class View {
     /**
@@ -64,8 +65,6 @@ export default class View {
         return array;
     }
 
-
-
     /**
      * Processes JSON data and returns Array of text strings
      * @param {Array} domJSON Top-level DOM elements in Array format
@@ -88,6 +87,7 @@ export default class View {
             // Parsing only text items
             if (current.type === 'text' && current.data) {
                 let text = current.data.replace(/(\r\n|\n|\r)/gm, '').trim();
+                text = text.replace(/\s\s+/g, ' '); // Replace longer spaces
                 let trimmed = text.replace(/&nbsp;/gi, ''); // Removing non-string queries
                 if (text && trimmed) {
                     strings = this._addString(text, strings);
@@ -111,7 +111,27 @@ export default class View {
         body.innerHTML = '<pre>' + JSON.stringify(jsonObject, null, '\t') + '</pre>';
     }
 
-    _translateStrings() {
+    translateStrings(json) {
+        let start = performance.now();
 
+        let keys = Object.keys(json);
+        let parser = new domparser(this.html);
+
+        keys.forEach(function(key) {
+            parser.replaceTranslations(key, json[key]);
+        });
+
+        let end = performance.now();
+        let time = end && start ? ' in ' + (Math.round(100 * (end - start)) / 100).toString() + ' ms' : '';
+        console.info('Translated ' + keys.length + ' strings' + time); // Log time and string count
+    }
+
+    _replaceString(from, to) {
+        let toString = to;
+        let far = findAndReplace(this.html, {
+            preset: 'prose',
+            find: from,
+            replace: to
+        });
     }
 }

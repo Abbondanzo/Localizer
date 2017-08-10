@@ -11,6 +11,7 @@ export default class Controller {
         this.view = view;
         this.setLanguage();
         this.getJSON();
+        this.setTranslation();
     }
 
     /**
@@ -26,6 +27,19 @@ export default class Controller {
             if (language) {
                 this.model.setLanguage(language)
             }
+        }
+    }
+
+    setTranslation() {
+        let self = this;
+        if (!this.model.isDefault()) {
+            let promise = this.model.getTranslation()
+                .then(function(response) {
+                    self.view.translateStrings(response); // Send translation to view for process
+                })
+                .catch(function(error) {
+                    console.warn('Problem loading translation. Is the resource blocked? ', error);
+                });
         }
     }
 
