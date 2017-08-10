@@ -1,15 +1,29 @@
 'use strict';
 
-import LanguageParser from './src/model/parser';
-import CookieStorage from './src/controller/cookie';
+import Model from './src/model/model';
+import View from './src/view/view';
+import Controller from './src/controller/controller';
 
-// Initialize cookie support
-let url = window.location.href;
-let language = window.navigator.userLanguage || window.navigator.language;
-let cookie = new CookieStorage(url, language);
+export default class LanguageParser {
+    /**
+     * 
+     * @param {String} defaultLanguage 
+     * @param {String} userLanguage
+     * @param {Array} languages 
+     * @param {HTMLElement} html 
+     */
+    constructor(defaultLanguage, userLanguage, languages, html) {
+        this.defaultLanguage = defaultLanguage;
+        this.userLanguage = userLanguage;
+        this.languages = languages;
+        this.html = html;
+        this.init();
+    }
 
-// Initialize "localizer" object
-window.localizer = {};
-window.localizer.locale = cookie;
-
-export default LanguageParser;
+    init() {
+        let language = this.userLanguage ? this.userLanguage : this.defaultLanguage;
+        let model = new Model(language, this.languages, null, null);
+        let view = new View(model, this.html);
+        let controller = new Controller(model, view);
+    }
+}

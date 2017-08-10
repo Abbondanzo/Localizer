@@ -25,7 +25,8 @@
     <script type="text/javascript">
         var html = document.querySelector('html');
         var LanguageParser = LanguageParser.default;
-        new LanguageParser(html).getStrings();
+        var userLocale = window.navigator.userLanguage || window.navigator.language;
+        new LanguageParser('en-US', userLocale, [], html);
     </script>
 </body>
 

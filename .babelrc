@@ -1,7 +1,11 @@
 {
     "presets": [
-        "es2015",
-        "babili"
+        "es2015", [
+            "babili",
+            {
+                "mangle": false
+            }
+        ]
     ],
     "plugins": [
         "transform-runtime"
