@@ -14,12 +14,17 @@ export default class View {
         this.html = html;
     }
 
+    /**
+     * Returns the language to be used by the browser
+     * @returns {String} language code
+     */
     getLanguage() {
         return this.model.getLanguage();
     }
 
     /**
      * Returns an array of all strings found in HTML
+     * @returns {Array.String}
      */
     getStrings() {
         let html = this.html.innerHTML;
@@ -46,7 +51,8 @@ export default class View {
     /**
      * Inserts given String into a sorted array
      * @param {String} string 
-     * @param {Array} array Assumes this array is sorted
+     * @param {Array.String} array Assumes this array is sorted
+     * @returns {Array.String}
      */
     _addString(string, array) {
         if (array.length === 0) {

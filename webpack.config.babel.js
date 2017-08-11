@@ -1,5 +1,8 @@
 const path = require('path');
+const DefinePlugin = require('webpack').DefinePlugin;
 const Uglify = require('uglifyjs-webpack-plugin');
+
+let dotenv = require('dotenv').config();
 
 module.exports = {
     entry: "./index.js",
@@ -35,8 +38,15 @@ module.exports = {
         },
     },
     plugins: [
-        new Uglify()
+        new Uglify(),
+        new DefinePlugin({
+            // Only loads parsed environment variables from .env file and not entire node environment
+            'process.env': Object.keys(dotenv.parsed).reduce(function(o, k) {
+                o[k] = JSON.stringify(dotenv.parsed[k]);
+                return o;
+            }, {})
+        })
     ],
     context: __dirname,
-    target: "web",
+    target: 'web'
 }

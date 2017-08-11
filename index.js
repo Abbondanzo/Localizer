@@ -6,25 +6,33 @@ import Controller from './src/controller/controller';
 
 export default class LanguageParser {
     /**
-     * 
-     * @param {String} defaultLanguage 
+     * @constructor
      * @param {String} userLanguage
-     * @param {Array} languages 
      * @param {HTMLElement} html 
      */
-    constructor(defaultLanguage, userLanguage, languages, html) {
-        this.defaultLanguage = defaultLanguage;
+    constructor(userLanguage, html) {
         this.userLanguage = userLanguage;
-        this.languages = languages;
         this.html = html;
         this.init();
     }
 
     init() {
-        let language = this.userLanguage ? this.userLanguage : this.defaultLanguage;
-        let translationUrl = window.location.origin + '/translation/';
-        let isDefault = language === this.defaultLanguage;
-        let model = new Model(language, this.languages, null, translationUrl, this.defaultLanguage);
+        let config = {
+            defaultLanguage: process.env.DEFAULT_LANGUAGE,
+            languages: process.env.LANGUAGES,
+            translationUrl: process.env.TRANSLATION_URL
+        }
+
+        // Throw an error if the configuration file is not set up properly
+        Object.keys(config).forEach(function(key) {
+            if (!config[key]) {
+                throw new Error('Issue with your configuration file');
+            }
+        });
+
+        let language = this.userLanguage ? this.userLanguage : config.defaultLanguage;
+        let isDefault = language === config.defaultLanguage;
+        let model = new Model(language, config.languages, null, config.translationUrl, config.defaultLanguage);
         let view = new View(model, this.html);
         let controller = new Controller(model, view);
     }

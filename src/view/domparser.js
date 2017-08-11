@@ -71,13 +71,15 @@ export default class DomParser {
             let currentElement = queue.shift(); // Gets first element
             let ignorable = ['script', 'noscript', 'style'].indexOf(currentElement.tag) !== -1;
             if (ignorable) {
-                continue;
+                continue; // Skip past script, noscript, and style elements
             }
             if (pred(currentElement)) {
                 output.push(currentElement);
             }
-            let children = Array.prototype.slice.call(currentElement.childNodes);
-            queue = queue.concat(children);
+            if (currentElement.childNodes) {
+                let children = Array.prototype.slice.call(currentElement.childNodes);
+                queue = queue.concat(children);
+            }
         }
 
         return output;

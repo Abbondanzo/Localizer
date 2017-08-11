@@ -34,6 +34,7 @@ export default class Model {
 
     /**
      * Return the current language
+     * @returns {String}
      */
     getLanguage() {
         return this.currentLanguage;
@@ -72,6 +73,7 @@ export default class Model {
 
     /**
      * Asynchronous request to get translation data
+     * @returns {Promise}
      */
     async _setTranslation() {
         let language = this.currentLanguage;

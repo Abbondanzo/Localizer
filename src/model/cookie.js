@@ -19,6 +19,7 @@ export default class CookieStorage {
 
     /**
      * Returns cookie locale (if it exists)
+     * @returns {String|null}
      */
     getCookie() {
         let cookie = Cookies.get('locale');
