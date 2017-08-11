@@ -92,6 +92,7 @@ export default class DomParser {
      */
     replaceTranslations(from, to) {
         let elementsToTranslate = this.matchTranslate(from);
+        let addLocalized = process.env.ADD_LOCALIZED ? JSON.parse(process.env.ADD_LOCALIZED) : false;
         elementsToTranslate.forEach(function(elem) {
             if (elem.innerHTML === from) {
                 elem.innerHTML = to;
@@ -106,6 +107,10 @@ export default class DomParser {
                     }
                 })
 
+            }
+            // Localized tag
+            if (addLocalized) {
+                elem.setAttribute('localized', '');
             }
         });
     }

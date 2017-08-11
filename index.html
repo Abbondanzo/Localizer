@@ -26,7 +26,7 @@
         var html = document.querySelector('html');
         var LanguageParser = LanguageParser.default;
         var userLocale = window.navigator.userLanguage || window.navigator.language;
-        new LanguageParser(userLocale, html);
+        window.LanguageParser = new LanguageParser(userLocale, html);
     </script>
 </body>
 

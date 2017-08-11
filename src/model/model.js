@@ -40,15 +40,19 @@ export default class Model {
         return this.currentLanguage;
     }
 
+    /**
+     * @returns {Object}
+     */
+    getTranslation() {
+        return this.translation;
+    }
+
     /** 
      * Get translation of website
+     * @returns {Promise}
      */
-    async getTranslation() {
-        if (!this.translation) {
-            return this._setTranslation();
-        } else {
-            return this.translation;
-        }
+    async loadTranslation() {
+        return this._setTranslation();
     }
 
     /**
@@ -79,21 +83,37 @@ export default class Model {
         let language = this.currentLanguage;
         let url = this._translationUrl + language + '.json';
         let translation = this.translation;
-        let request = axios({
-                method: 'get',
-                url: url,
-                responseType: 'json'
-            })
-            .then(function(response) {
-                console.info('Loaded translation successfully');
-                if (response.data) {
-                    translation = response.data;
-                }
-                return response.data;
-            })
-            .catch(function(error) {
-                throw new Error('Problem finding translation: ', error.message);
-            });
+        console.info('Loading translation...');
+
+        let axiosConfig = {
+            method: 'GET',
+            url: url,
+            responseType: 'json'
+        }
+
+        // Include headers
+        let headers = process.env.HEADERS ? JSON.parse(process.env.HEADERS) : {};
+        if (headers && Object.keys(headers).length > 0) {
+            axiosConfig.headers = headers;
+        }
+
+        // Success function
+        let success = function(response) {
+            console.info('Loaded translation successfully');
+            if (response.data) {
+                translation = response.data;
+            }
+            return response.data;
+        }
+
+        // Failure function
+        let failure = function(error) {
+            throw error;
+        }
+
+        // Place XML request
+        let request = axios(axiosConfig).then(success).catch(failure);
+
         return request;
     }
 }

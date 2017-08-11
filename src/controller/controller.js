@@ -33,13 +33,13 @@ export default class Controller {
     setTranslation() {
         let self = this;
         if (!this.model.isDefault()) {
-            let promise = this.model.getTranslation()
+            let promise = this.model.loadTranslation()
                 .then(function(response) {
                     self.view.translateStrings(response); // Send translation to view for process
                 })
                 .catch(function(error) {
-                    console.warn('Problem loading translation. Is the resource blocked? ', error);
-                });
+                    console.warn('Problem loading translation. Is the resource blocked? (', error.message, ')');
+                })
         }
     }
 
