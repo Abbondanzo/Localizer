@@ -16,10 +16,10 @@ export default class DomParser {
      */
     matchText(text) {
         let body = this.html;
+        let self = this;
 
         let predicate = function(element) {
-            console.log(element.attributes);
-            return element.innerHTML === text;
+            self._trimString(element.innerHTML) === text;
         }
 
         return this._parseElements(predicate, body);
@@ -32,6 +32,7 @@ export default class DomParser {
      */
     matchTranslate(text) {
         let body = this.html;
+        let self = this;
 
         let predicate = function(element) {
             let output = false;
@@ -39,15 +40,23 @@ export default class DomParser {
             let attributes = element.attributes;
             if (attributes && attributes.length > 0) {
                 Object.keys(attributes).forEach(function(key) {
-                    let identifiers = ['alt', 'title'];
+                    let identifiers = ['alt', 'title', 'placeholder'];
                     if (identifiers.indexOf(attributes[key].name) !== -1) {
                         output = output || text === attributes[key].value;
                     }
                 })
 
             }
-            // Checks for text in displayed text
-            output = output || element.innerHTML === text;
+
+            // Checks HTML make-up
+            output = output || self._trimString(element.innerHTML) === text;
+
+            // Checks on siblings/multi-part elements
+            let child = element.firstChild;
+            while (child) {
+                output = output || self._trimString(child.textContent) === text;
+                child = child.nextSibling;
+            }
 
             return output;
         }
@@ -93,13 +102,28 @@ export default class DomParser {
     replaceTranslations(from, to) {
         let elementsToTranslate = this.matchTranslate(from);
         let addLocalized = process.env.ADD_LOCALIZED ? JSON.parse(process.env.ADD_LOCALIZED) : false;
+        let self = this;
         elementsToTranslate.forEach(function(elem) {
-            if (elem.innerHTML === from) {
+            // Checks innerHTML
+            if (self._trimString(elem.innerHTML) === from) {
                 elem.innerHTML = to;
-            } else if (elem.attributes && elem.attributes.length > 0) {
+            }
+            // Checks child siblings
+            if (elem.firstChild) {
+                let child = elem.firstChild;
+                let shouldModify = false;
+                while (child) {
+                    if (self._trimString(child.nodeValue) === from) {
+                        child.nodeValue = child.nodeValue.replace(from, to);
+                    }
+                    child = child.nextSibling;
+                }
+            }
+            // Checks attributes
+            if (elem.attributes && elem.attributes.length > 0) {
                 let attributes = elem.attributes;
                 Object.keys(attributes).forEach(function(key) {
-                    let identifiers = ['alt', 'title'];
+                    let identifiers = ['alt', 'title', 'placeholder'];
                     let toChange = identifiers.indexOf(attributes[key].name) !== -1 &&
                         attributes[key].value === from;
                     if (toChange) {
@@ -113,5 +137,18 @@ export default class DomParser {
                 elem.setAttribute('localized', '');
             }
         });
+    }
+
+    /**
+     * Trim down strings for comparison
+     * @param {String} string 
+     */
+    _trimString(string) {
+        if (!string) {
+            return '';
+        }
+        let text = string.replace(/(\r\n|\n|\r)/gm, '').trim();
+        text = text.replace(/\s\s+/g, ' ').replace(/&nbsp;/gi, ''); // Replace longer spaces
+        return text;
     }
 }

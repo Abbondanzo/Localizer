@@ -85,6 +85,10 @@ export default class Model {
         let translation = this.translation;
         console.info('Loading translation...');
 
+        if (this.languages.indexOf(this.currentLanguage) === -1) {
+            throw new Error('Selected language is not supported. Please use a supported language.');
+        }
+
         let axiosConfig = {
             method: 'GET',
             url: url,
