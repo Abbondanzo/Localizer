@@ -144,30 +144,19 @@ export default class DomParser {
      * @param {Object} json 
      */
     modElements(json) {
-        let queue = [];
-        queue.push(this.html);
+        let iter = document.createNodeIterator(this.html, NodeFilter.SHOW_TEXT);
+        let node = iter.nextNode();
 
-        let self = this;
-        while (queue.length > 0) {
-            let currentElement = queue.shift();
-
-            // Ignore scripts and style elements entirely
-            let ignorable = ['script', 'noscript', 'style'].indexOf(currentElement.tag) !== -1;
-            if (ignorable) {
-                continue;
+        while (node) {
+            for (let key in json) {
+                let ignoreable = ['html', 'script', 'noscript', 'style'];
+                if (ignoreable.indexOf(node.parentElement.tagName) !== -1) {
+                    continue;
+                } else if (this._trimString(node.nodeValue) === key) {
+                    node.nodeValue = node.nodeValue.replace(key, json[key]);
+                }
             }
-
-            // Add children to the queue
-            if (currentElement.childNodes) {
-                let children = Array.prototype.slice.call(currentElement.childNodes);
-                queue = queue.concat(children);
-            }
-
-            // Perform modifications
-            Object.keys(json).forEach(function(key) {
-                self._modify(currentElement, key, json[key]);
-            })
-
+            node = iter.nextNode();
         }
     }
 
