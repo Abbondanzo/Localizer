@@ -119,17 +119,14 @@ export default class View {
 
     translateStrings(json) {
         let start = performance.now();
-
-        let keys = Object.keys(json);
         let parser = new domparser(this.html);
 
-        keys.forEach(function(key) {
-            parser.replaceTranslations(key, json[key]);
-        });
+        // domparser at work
+        parser.modElements(json);
 
         let end = performance.now();
         let time = end && start ? ' in ' + (Math.round(100 * (end - start)) / 100).toString() + ' ms' : '';
-        console.info('Translated ' + keys.length + ' strings' + time); // Log time and string count
+        console.info('Translated ' + Object.keys(json).length + ' strings' + time); // Log time and string count
     }
 
     _replaceString(from, to) {

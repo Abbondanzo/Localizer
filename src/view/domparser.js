@@ -9,7 +9,7 @@ export default class DomParser {
         this.html = html;
     }
 
-    /**
+    /** DEPRECATED
      * Returns array of elements that contain given string in innerHTML
      * @param {String} text 
      * @returns {Array.HTMLElement}
@@ -25,7 +25,7 @@ export default class DomParser {
         return this._parseElements(predicate, body);
     }
 
-    /**
+    /** DEPRECATED
      * Returns array of elements that contain given string in innerHTML or attributes
      * @param {String} text 
      * @returns {Array.HTMLElement}
@@ -63,8 +63,8 @@ export default class DomParser {
         return this._parseElements(predicate, body);
     }
 
-    /**
-     * 
+    /** DEPRECATED
+     * Parses entire HTML document
      * @param {Function} pred Predicate function
      * @param {HTMLElement} html 
      * @returns {Array.HTMLElement}
@@ -90,14 +90,14 @@ export default class DomParser {
                 queue = queue.concat(children);
             }
         }
-
+        console.log(output);
         return output;
     }
 
-    /**
+    /** DEPRECATED
      * Replaces attributes and innerHTML of all matching elements to given from value
-     * @param {String} from 
-     * @param {String} to 
+     * @param {String} from
+     * @param {String} to
      */
     replaceTranslations(from, to) {
         let elementsToTranslate = this.matchTranslate(from);
@@ -137,6 +137,87 @@ export default class DomParser {
                 elem.setAttribute('localized', '');
             }
         });
+    }
+
+    /**
+     * Handles replacing strings by parsing HTML once
+     * @param {Object} json 
+     */
+    modElements(json) {
+        let queue = [];
+        queue.push(this.html);
+
+        let self = this;
+        while (queue.length > 0) {
+            let currentElement = queue.shift();
+
+            // Ignore scripts and style elements entirely
+            let ignorable = ['script', 'noscript', 'style'].indexOf(currentElement.tag) !== -1;
+            if (ignorable) {
+                continue;
+            }
+
+            // Add children to the queue
+            if (currentElement.childNodes) {
+                let children = Array.prototype.slice.call(currentElement.childNodes);
+                queue = queue.concat(children);
+            }
+
+            // Perform modifications
+            Object.keys(json).forEach(function(key) {
+                self._modify(currentElement, key, json[key]);
+            })
+
+        }
+    }
+
+    /**
+     * Parses single given HTML element, replacing all values with 
+     * @param {Node} element 
+     * @param {String} from 
+     * @param {String} to 
+     */
+    _modify(element, from, to) {
+        // Parse attributes
+        let attributes = element.attributes;
+        if (attributes && attributes.length > 0) {
+            Object.keys(attributes).forEach(function(key) {
+                let identifiers = ['alt', 'title', 'placeholder'];
+                if (identifiers.indexOf(attributes[key].name) !== -1 && attributes[key].value === from) {
+                    attributes[key].value = to;
+                }
+            })
+        }
+
+        // Checks HTML make-up
+        if (this._trimString(element.innerHTML) === from) {
+            element.innerHTML = element.innerHTML.replace(from, to);
+            this._addLocalized(element);
+        }
+
+        // Checks child siblings
+        if (element.firstChild) {
+            let child = element.firstChild;
+            while (child) {
+                if (this._trimString(child.nodeValue) === from) {
+                    child.nodeValue = child.nodeValue.replace(from, to);
+                    this._addLocalized(element);
+                }
+                child = child.nextSibling;
+            }
+        }
+    }
+
+    /**
+     * Adds 'localized' attribute if given Node is HTMLElement
+     * @param {Node} element 
+     */
+    _addLocalized(element) {
+        // Add 'localized' if set
+        let addLocalized = process.env.ADD_LOCALIZED ? JSON.parse(process.env.ADD_LOCALIZED) : false;
+        if (addLocalized && element instanceof HTMLElement) {
+            element.setAttribute('localized', '');
+        }
     }
 
     /**
