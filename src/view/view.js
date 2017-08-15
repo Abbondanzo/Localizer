@@ -126,7 +126,7 @@ export default class View {
 
         let end = performance.now();
         let time = end && start ? ' in ' + (Math.round(100 * (end - start)) / 100).toString() + ' ms' : '';
-        console.info('Translated ' + Object.keys(json).length + ' strings' + time); // Log time and string count
+        console.info('Translated from ' + Object.keys(json).length + ' strings' + time); // Log time and string count
     }
 
     _replaceString(from, to) {

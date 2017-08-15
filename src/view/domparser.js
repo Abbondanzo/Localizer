@@ -148,12 +148,13 @@ export default class DomParser {
         let node = iter.nextNode();
 
         while (node) {
-            for (let key in json) {
-                let ignoreable = ['html', 'script', 'noscript', 'style'];
-                if (ignoreable.indexOf(node.parentElement.tagName) !== -1) {
-                    continue;
-                } else if (this._trimString(node.nodeValue) === key) {
-                    node.nodeValue = node.nodeValue.replace(key, json[key]);
+            let ignoreable = ['html', 'script', 'noscript', 'style'];
+            if (ignoreable.indexOf(node.parentElement.tagName) === -1) {
+                let trimmedNode = this._trimString(node.nodeValue);
+                for (let key in json) {
+                    if (trimmedNode === key) {
+                        node.nodeValue = node.nodeValue.replace(key, json[key]);
+                    }
                 }
             }
             node = iter.nextNode();
