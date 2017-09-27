@@ -29,6 +29,7 @@ If no translation is given for a particular string on a page, it will be left as
 The `title` and `alt` attributes will also be translated by default (TODO: ...and can be turned off using env variable...)
 
 ## Deployment
+Before deploying, be sure to rename your `.env.example` file to `.env`. Otherwise, an error will be thrown when building your project.
 
 ```bash
 # Compiles source files into the public/ folder

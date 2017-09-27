@@ -1,7 +1,7 @@
 {
-    "name": "weiss-aug-localizer",
+    "name": "localizer",
     "version": "1.0.0",
-    "description": "Front-end portal to manage localization for Weiss-Aug's websites",
+    "description": "Localization script that handles translations client-side.",
     "main": "index.js",
     "scripts": {
         "babel": "babel src/app.js --out-file public/app.js",
