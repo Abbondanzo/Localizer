@@ -28,6 +28,29 @@ If no translation is given for a particular string on a page, it will be left as
 
 The `title` and `alt` attributes will also be translated by default (TODO: ...and can be turned off using env variable...)
 
+### Getting Page as JSON Data
+For fast and easy translation, you can grab all text on a particular page by appending `?format=string` anywhere in the URL (e.g. `http://example.com/?format=string` will show JSON data of all translatable strings on `http://example.com`). Note that this will not output strings contained inside `<script>`, `<noscript>`, and `<style>` tags.
+
+This will display page data in a `"key": "value"` format, where the key is the text that defaults on the page and the value is the key that a user may wish to translate to.
+
+### Translation Files
+Every translation file you wish to source should be contained within the same folder and in a `language-code.json` format (e.g. `es.json` for Spanish). When a particular language is requested using the `language?=` parameter, the value given must match that of the filename that contains a translation. 
+
+If you wish to use custom naming conventions, you may do so. This means that `?language=apple-pie` will attempt translate the page using a file called `apple-pie.json` from your specified directory.
+
+A translation file is a simple JSON data format, where the key represents the text on the page to be translated, and the value represents the custom translation for that string. The translation file does not need to have full coverage of text elements on a page.
+
+For example, if I wanted to use the following:
+```json
+{
+    "random text": "super awesome text"
+} 
+```
+This translation JSON data will simply replace every instance of the text `random text` with `super awesome text` and nothing else. JSON keys are also case-sensitive, which means that `Random text` will not be translated to `Super awesome text` unless explicitly specified.
+
+### Cross-Origin Resource Sharing
+JSON file access must abide by the [CORS standard](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS), which means that your translation files must follow same-origin policy unless your server is configured otherwise. Files are requested via `XMLHttpRequest`.
+
 ## Deployment
 Before deploying, be sure to rename your `.env.example` file to `.env`. Otherwise, an error will be thrown when building your project.
 
@@ -36,4 +59,19 @@ Before deploying, be sure to rename your `.env.example` file to `.env`. Otherwis
 npm run build
 ```
 
-Project still in progress. Documentation will be updated to reflect changes. 
+## Usage
+After you compile your app to `public/app.js`, you then need to build a new `LanguageParser` object in your page. It takes an ISO 639-1 code and the HTMLElement you wish to translate (Note: this code should be placed at the end of your page, just before the closing `</body>` tag). Most modern browsers will store the user's preferred ISO code in the `window.navigator.userLanguage` or `window.navigator.language`. You should use the following as a reference:
+
+```html
+<script type="text/javascript" src="public/app.js"></script>
+<script type="text/javascript">
+    var html = document.querySelector('html');
+    var LanguageParser = LanguageParser.default;
+    var userLocale = window.navigator.userLanguage || window.navigator.language || 'en-US'; // 'en-US' is a fallback in case no language is specified
+    window.LanguageParser = new LanguageParser(userLocale, html);
+</script>
+```
+
+See [index.html](/index.html) as a reference.
+
+Project still in progress. Documentation will be updated to reflect changes. If you run into any issues, please submit an issue [here](../../issues).
